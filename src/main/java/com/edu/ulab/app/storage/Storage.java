@@ -2,6 +2,7 @@ package com.edu.ulab.app.storage;
 
 import com.edu.ulab.app.entity.Book;
 import com.edu.ulab.app.entity.User;
+import com.edu.ulab.app.exception.NotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -38,5 +39,12 @@ public class Storage {
         user.addBook(book);
 
         return id;
+    }
+
+    public User findUserById(Long id) {
+        if (userStorage.containsKey(id))
+            return userStorage.get(id);
+        else
+            throw new NotFoundException("Cannot find user with id: " + id);
     }
 }

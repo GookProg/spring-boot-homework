@@ -11,6 +11,8 @@ import com.edu.ulab.app.storage.Storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class BookServiceImpl implements BookService {
@@ -43,5 +45,16 @@ public class BookServiceImpl implements BookService {
     @Override
     public void deleteBookById(Long id) {
 
+    }
+
+    @Override
+    public List<Long> getBooksByUserId(Long userId) {
+        User user = storage.findUserById(userId);
+        List<Book> books = user.getBooks();
+
+        return books
+                .stream()
+                .map(Book::getId)
+                .toList();
     }
 }

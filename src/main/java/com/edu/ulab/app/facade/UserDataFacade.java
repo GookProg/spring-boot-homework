@@ -64,7 +64,17 @@ public class UserDataFacade {
     }
 
     public UserBookResponse getUserWithBooks(Long userId) {
-        return null;
+        log.info("Got user id: {}", userId);
+        UserDto userDto = userService.getUserById(userId);
+        log.info("Got user from storage: {}", userDto);
+
+        List<Long> bookIdList = bookService.getBooksByUserId(userId);
+        log.info("Collected book ids: {}", bookIdList);
+
+        return UserBookResponse.builder()
+                .userId(userDto.getId())
+                .booksIdList(bookIdList)
+                .build();
     }
 
     public void deleteUserWithBooks(Long userId) {
