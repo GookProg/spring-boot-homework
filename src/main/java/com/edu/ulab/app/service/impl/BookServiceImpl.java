@@ -47,7 +47,6 @@ public class BookServiceImpl implements BookService {
     public void deleteBooksByUserId(Long userId) {
         List<Long> bookIdList = getBooksByUserId(userId);
 
-        for (Long bookId : bookIdList)
-            storage.deleteBookById(bookId);
+        bookIdList.forEach(storage::deleteBookById);
     }
 }
