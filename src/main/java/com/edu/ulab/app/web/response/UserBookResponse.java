@@ -9,5 +9,8 @@ import java.util.List;
 @Builder
 public class UserBookResponse {
     private Long userId;
+    private String fullName;
+    private String title;
+    private int age;
     private List<Long> booksIdList;
 }

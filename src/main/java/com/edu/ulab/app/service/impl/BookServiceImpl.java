@@ -33,28 +33,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookDto updateBook(BookDto bookDto) {
-        return null;
-    }
-
-    @Override
-    public BookDto getBookById(Long id) {
-        return null;
-    }
-
-    @Override
-    public void deleteBookById(Long id) {
-
-    }
-
-    @Override
     public List<Long> getBooksByUserId(Long userId) {
         User user = storage.findUserById(userId);
-        List<Book> books = user.getBooks();
+        List<Book> bookIdList = user.getBooks();
 
-        return books
+        return bookIdList
                 .stream()
                 .map(Book::getId)
                 .toList();
+    }
+
+    @Override
+    public void deleteBooksByUserId(Long userId) {
+        List<Long> bookIdList = getBooksByUserId(userId);
+
+        for (Long bookId : bookIdList)
+            storage.deleteBookById(bookId);
     }
 }

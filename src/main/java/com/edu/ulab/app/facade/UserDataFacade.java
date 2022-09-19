@@ -2,7 +2,6 @@ package com.edu.ulab.app.facade;
 
 import com.edu.ulab.app.dto.BookDto;
 import com.edu.ulab.app.dto.UserDto;
-import com.edu.ulab.app.exception.NotFoundException;
 import com.edu.ulab.app.mapper.BookMapper;
 import com.edu.ulab.app.mapper.UserMapper;
 import com.edu.ulab.app.service.BookService;
@@ -41,26 +40,49 @@ public class UserDataFacade {
         UserDto createdUser = userService.createUser(userDto);
         log.info("Created user: {}", createdUser);
 
-        List<Long> bookIdList = userBookRequest.getBookRequests()
+        List<Long> bookIdList = collectBookIds(userBookRequest, createdUser);
+        log.info("Collected book ids: {}", bookIdList);
+
+        return UserBookResponse.builder()
+                .userId(createdUser.getId())
+                .fullName(createdUser.getFullName())
+                .title(createdUser.getTitle())
+                .age(createdUser.getAge())
+                .booksIdList(bookIdList)
+                .build();
+    }
+
+    public List<Long> collectBookIds(UserBookRequest userBookRequest, UserDto userDto) {
+        return userBookRequest.getBookRequests()
                 .stream()
                 .filter(Objects::nonNull)
                 .map(bookMapper::bookRequestToBookDto)
-                .peek(bookDto -> bookDto.setUserId(createdUser.getId()))
+                .peek(bookDto -> bookDto.setUserId(userDto.getId()))
                 .peek(mappedBookDto -> log.info("mapped book: {}", mappedBookDto))
                 .map(bookService::createBook)
                 .peek(createdBook -> log.info("Created book: {}", createdBook))
                 .map(BookDto::getId)
                 .toList();
+    }
+
+    public UserBookResponse updateUserWithBooks(UserBookRequest userBookRequest, Long userId) {
+        log.info("Got user book create request: {}", userBookRequest);
+        UserDto userDto = userMapper.userRequestToUserDto(userBookRequest.getUserRequest());
+        log.info("Mapped user request: {}", userDto);
+
+        UserDto updatedUser = userService.updateUser(userDto, userId);
+        log.info("Updated user: {}", updatedUser);
+
+        List<Long> bookIdList = collectBookIds(userBookRequest, updatedUser);
         log.info("Collected book ids: {}", bookIdList);
 
         return UserBookResponse.builder()
-                .userId(createdUser.getId())
+                .userId(updatedUser.getId())
+                .fullName(updatedUser.getFullName())
+                .title(updatedUser.getTitle())
+                .age(updatedUser.getAge())
                 .booksIdList(bookIdList)
                 .build();
-    }
-
-    public UserBookResponse updateUserWithBooks(UserBookRequest userBookRequest) {
-        return null;
     }
 
     public UserBookResponse getUserWithBooks(Long userId) {
@@ -72,11 +94,19 @@ public class UserDataFacade {
         log.info("Collected book ids: {}", bookIdList);
 
         return UserBookResponse.builder()
-                .userId(userDto.getId())
+                .userId(userId)
+                .fullName(userDto.getFullName())
+                .title(userDto.getTitle())
+                .age(userDto.getAge())
                 .booksIdList(bookIdList)
                 .build();
     }
 
     public void deleteUserWithBooks(Long userId) {
+        log.info("Got user id: {}", userId);
+        bookService.deleteBooksByUserId(userId);
+        log.info("Deleted books from user: {}", userId);
+        userService.deleteUserById(userId);
+        log.info("User with id {} deleted", userId);
     }
 }

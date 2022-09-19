@@ -28,8 +28,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto) {
-        return null;
+    public UserDto updateUser(UserDto userDto, Long id) {
+        User user = userMapper.userDtoToUser(userDto);
+        userDto.setId(storage.update(user, id));
+
+        return userDto;
     }
 
     @Override
@@ -41,6 +44,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserById(Long id) {
-
+        storage.deleteUserById(id);
     }
 }
